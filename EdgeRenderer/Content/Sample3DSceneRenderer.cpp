@@ -211,7 +211,7 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources()
 
 		// Create the index buffer resource in the GPU's default heap and copy index data into it using the upload heap.
 		// The upload resource must not be released until after the GPU has finished using it.
-		Microsoft::WRL::ComPtr<ID3D12Resource> indexBufferUpload;
+		/*Microsoft::WRL::ComPtr<ID3D12Resource> indexBufferUpload;
 
 		CD3DX12_RESOURCE_DESC indexBufferDesc = CD3DX12_RESOURCE_DESC::Buffer(indexBufferSize2);
 		DX::ThrowIfFailed(d3dDevice->CreateCommittedResource(
@@ -244,7 +244,7 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources()
 			CD3DX12_RESOURCE_BARRIER indexBufferResourceBarrier =
 				CD3DX12_RESOURCE_BARRIER::Transition(m_indexBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_INDEX_BUFFER);
 			m_commandList->ResourceBarrier(1, &indexBufferResourceBarrier);
-		}
+		}*/
 
 		// Create a descriptor heap for the constant buffers.
 		{
@@ -301,9 +301,9 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources()
 		m_vertexBufferView.StrideInBytes = sizeof(VertexPositionColor);
 		m_vertexBufferView.SizeInBytes = sizeof(cubeVertices);
 
-		m_indexBufferView.BufferLocation = m_indexBuffer->GetGPUVirtualAddress();
+		/*m_indexBufferView.BufferLocation = m_indexBuffer->GetGPUVirtualAddress();
 		m_indexBufferView.SizeInBytes = sizeof(cubeIndices);
-		m_indexBufferView.Format = DXGI_FORMAT_R16_UINT;
+		m_indexBufferView.Format = DXGI_FORMAT_R16_UINT;*/
 
 		// Wait for the command list to finish executing; the vertex/index buffers need to be uploaded to the GPU before the upload resources go out of scope.
 		m_deviceResources->WaitForGpu();
@@ -486,8 +486,8 @@ bool Sample3DSceneRenderer::Render()
 
 		m_commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		m_commandList->IASetVertexBuffers(0, 1, &m_vertexBufferView);
-		m_commandList->IASetIndexBuffer(&m_indexBufferView);
-		m_commandList->DrawIndexedInstanced(3, 1, 0, 0, 0);
+		//m_commandList->IASetIndexBuffer(&m_indexBufferView);
+		m_commandList->DrawInstanced(3, 1, 0, 0);
 
 		// Indicate that the render target will now be used to present when the command list is done executing.
 		CD3DX12_RESOURCE_BARRIER presentResourceBarrier =
