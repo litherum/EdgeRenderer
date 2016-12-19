@@ -129,14 +129,21 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources()
 			{ XMFLOAT3(0.5f,  0.5f,  0.5f), XMFLOAT3(1.0f, 1.0f, 1.0f) },
 		};
 
+		VertexPositionColor cubeVertices2[] = {
+			{ XMFLOAT3(-0.5f, -0.5f,  0.5f), XMFLOAT3(0.0f, 0.0f, 1.0f) },
+			{ XMFLOAT3(-0.5f,  0.5f,  0.5f), XMFLOAT3(0.0f, 1.0f, 1.0f) },
+			{ XMFLOAT3(0.5f,  0.5f,  0.5f), XMFLOAT3(1.0f, 1.0f, 1.0f) },
+		};
+
 		const UINT vertexBufferSize = sizeof(cubeVertices);
+		const UINT vertexBufferSize2 = sizeof(cubeVertices2);
 
 		// Create the vertex buffer resource in the GPU's default heap and copy vertex data into it using the upload heap.
 		// The upload resource must not be released until after the GPU has finished using it.
 		Microsoft::WRL::ComPtr<ID3D12Resource> vertexBufferUpload;
 
 		CD3DX12_HEAP_PROPERTIES defaultHeapProperties(D3D12_HEAP_TYPE_DEFAULT);
-		CD3DX12_RESOURCE_DESC vertexBufferDesc = CD3DX12_RESOURCE_DESC::Buffer(vertexBufferSize);
+		CD3DX12_RESOURCE_DESC vertexBufferDesc = CD3DX12_RESOURCE_DESC::Buffer(vertexBufferSize2);
 		DX::ThrowIfFailed(d3dDevice->CreateCommittedResource(
 			&defaultHeapProperties,
 			D3D12_HEAP_FLAG_NONE,
@@ -159,8 +166,8 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources()
 		// Upload the vertex buffer to the GPU.
 		{
 			D3D12_SUBRESOURCE_DATA vertexData = {};
-			vertexData.pData = reinterpret_cast<BYTE*>(cubeVertices);
-			vertexData.RowPitch = vertexBufferSize;
+			vertexData.pData = reinterpret_cast<BYTE*>(cubeVertices2);
+			vertexData.RowPitch = vertexBufferSize2;
 			vertexData.SlicePitch = vertexData.RowPitch;
 
 			UpdateSubresources(m_commandList.Get(), m_vertexBuffer.Get(), vertexBufferUpload.Get(), 0, 0, 1, &vertexData);
@@ -194,13 +201,19 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources()
 			1, 7, 5,
 		};
 
+		unsigned short cubeIndices2[] =
+		{
+			0, 1, 2,
+		};
+
 		const UINT indexBufferSize = sizeof(cubeIndices);
+		const UINT indexBufferSize2 = sizeof(cubeIndices2);
 
 		// Create the index buffer resource in the GPU's default heap and copy index data into it using the upload heap.
 		// The upload resource must not be released until after the GPU has finished using it.
 		Microsoft::WRL::ComPtr<ID3D12Resource> indexBufferUpload;
 
-		CD3DX12_RESOURCE_DESC indexBufferDesc = CD3DX12_RESOURCE_DESC::Buffer(indexBufferSize);
+		CD3DX12_RESOURCE_DESC indexBufferDesc = CD3DX12_RESOURCE_DESC::Buffer(indexBufferSize2);
 		DX::ThrowIfFailed(d3dDevice->CreateCommittedResource(
 			&defaultHeapProperties,
 			D3D12_HEAP_FLAG_NONE,
@@ -222,8 +235,8 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources()
 		// Upload the index buffer to the GPU.
 		{
 			D3D12_SUBRESOURCE_DATA indexData = {};
-			indexData.pData = reinterpret_cast<BYTE*>(cubeIndices);
-			indexData.RowPitch = indexBufferSize;
+			indexData.pData = reinterpret_cast<BYTE*>(cubeIndices2);
+			indexData.RowPitch = indexBufferSize2;
 			indexData.SlicePitch = indexData.RowPitch;
 
 			UpdateSubresources(m_commandList.Get(), m_indexBuffer.Get(), indexBufferUpload.Get(), 0, 0, 1, &indexData);
@@ -341,8 +354,8 @@ void Sample3DSceneRenderer::CreateWindowSizeDependentResources()
 		);
 
 	// Eye is at (0,0.7,1.5), looking at point (0,-0.1,0) with the up-vector along the y-axis.
-	static const XMVECTORF32 eye = { 0.0f, 0.7f, 1.5f, 0.0f };
-	static const XMVECTORF32 at = { 0.0f, -0.1f, 0.0f, 0.0f };
+	static const XMVECTORF32 eye = { 0.0f, 0.0f, 1.5f, 0.0f };
+	static const XMVECTORF32 at = { 0.0f, -0.0f, 0.0f, 0.0f };
 	static const XMVECTORF32 up = { 0.0f, 1.0f, 0.0f, 0.0f };
 
 	XMStoreFloat4x4(&m_constantBufferData.view, XMMatrixTranspose(XMMatrixLookAtRH(eye, at, up)));
@@ -356,7 +369,7 @@ void Sample3DSceneRenderer::Update(DX::StepTimer const& timer)
 		if (!m_tracking)
 		{
 			// Rotate the cube a small amount.
-			m_angle += static_cast<float>(timer.GetElapsedSeconds()) * m_radiansPerSecond;
+			//m_angle += static_cast<float>(timer.GetElapsedSeconds()) * m_radiansPerSecond;
 
 			Rotate(m_angle);
 		}
@@ -391,7 +404,7 @@ void Sample3DSceneRenderer::LoadState()
 	auto state = ApplicationData::Current->LocalSettings->Values;
 	if (state->HasKey(AngleKey))
 	{
-		m_angle = safe_cast<IPropertyValue^>(state->Lookup(AngleKey))->GetSingle();
+		//m_angle = safe_cast<IPropertyValue^>(state->Lookup(AngleKey))->GetSingle();
 		state->Remove(AngleKey);
 	}
 	if (state->HasKey(TrackingKey))
@@ -474,7 +487,7 @@ bool Sample3DSceneRenderer::Render()
 		m_commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		m_commandList->IASetVertexBuffers(0, 1, &m_vertexBufferView);
 		m_commandList->IASetIndexBuffer(&m_indexBufferView);
-		m_commandList->DrawIndexedInstanced(36, 1, 0, 0, 0);
+		m_commandList->DrawIndexedInstanced(3, 1, 0, 0, 0);
 
 		// Indicate that the render target will now be used to present when the command list is done executing.
 		CD3DX12_RESOURCE_BARRIER presentResourceBarrier =
