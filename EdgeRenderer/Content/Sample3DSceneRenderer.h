@@ -47,6 +47,7 @@ namespace EdgeRenderer
 		UINT												m_cbvDescriptorSize;
 		D3D12_RECT											m_scissorRect;
 		std::vector<byte>									m_vertexShader;
+		std::vector<byte>									m_geometryShader;
 		std::vector<byte>									m_pixelShader;
 		D3D12_VERTEX_BUFFER_VIEW							m_vertexBufferView;
 		//D3D12_INDEX_BUFFER_VIEW								m_indexBufferView;

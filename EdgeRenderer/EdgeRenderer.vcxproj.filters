@@ -79,4 +79,9 @@
   <ItemGroup>
     <None Include="EdgeRenderer_TemporaryKey.pfx" />
   </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Content\SampleGeometryShader.hlsl">
+      <Filter>Content</Filter>
+    </FxCompile>
+  </ItemGroup>
 </Project>
