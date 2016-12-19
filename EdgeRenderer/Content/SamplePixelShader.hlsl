@@ -12,12 +12,13 @@ float4 main(PixelShaderInput input) : SV_TARGET
 {
 	float minimum = -1;
 	uint minimumIndex = 0;
+	uint indices[4] = { 0, 1, 2, 0 };
 	for (uint i = 0; i < 3; ++i) {
-		float3 v0 = input.vertexWorldPositions[i];
-		float3 v1 = input.vertexWorldPositions[(i + 1) % 3];
+		float3 v0 = input.vertexWorldPositions[indices[i]];
+		float3 v1 = input.vertexWorldPositions[indices[i + 1]];
 		float3 a = input.worldPosition - v0;
 		float3 b = v1 - v0;
-		float scalar = (a * b) / (b * b);
+		float scalar = dot(a, b) / dot(b, b);
 		scalar = clamp(scalar, 0, 1);
 		float3 a1 = scalar * b;
 		float d = distance(a, a1);
