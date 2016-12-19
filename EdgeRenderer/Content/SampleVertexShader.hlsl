@@ -17,6 +17,7 @@ struct VertexShaderInput
 struct GeometryShaderInput
 {
 	float4 pos : SV_POSITION;
+	float3 worldPosition : POSITION0;
 	float4 edgeData : COLOR0;
 };
 
@@ -28,6 +29,9 @@ GeometryShaderInput main(VertexShaderInput input)
 
 	// Transform the vertex position into projected space.
 	pos = mul(pos, model);
+
+	output.worldPosition = pos.xyz;
+
 	pos = mul(pos, view);
 	pos = mul(pos, projection);
 	output.pos = pos;
